@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="it" class="h-full bg-slate-900 text-slate-100 select-none">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Arcade Mobile Portal</title>
+  <!-- Tailwind CSS per UI Mobile Rapidissima -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Previene rimbalzi di scroll e gestures indesiderate su browser mobile */
+    body {
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col justify-between overflow-hidden font-sans">
+
+  <!-- Header / Navigation Bar -->
+  <header class="h-14 bg-slate-800 border-b border-slate-700 flex items-center justify-between px-4 z-10 shadow-md">
+    <div class="flex items-center space-x-2">
+      <span class="text-2xl">🎮</span>
+      <h1 class="text-lg font-bold tracking-wide text-indigo-400">PocketArcade</h1>
+    </div>
+    <button id="btn-home" class="hidden text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg border border-slate-600 transition">
+      🏠 Home
+    </button>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 relative overflow-y-auto p-4 flex flex-col justify-center items-center">
+
+    <!-- View 1: Dashboard / Selezione Giochi -->
+    <section id="view-dashboard" class="w-full max-w-md mx-auto space-y-4">
+      <div class="text-center mb-6">
+        <h2 class="text-xl font-bold">I Tuoi Minigiochi</h2>
+        <p class="text-xs text-slate-400 mt-1">Scegli un gioco e sfida i tuoi record!</p>
+      </div>
+
+      <!-- Griglia Giochi -->
+      <div class="grid grid-cols-2 gap-4">
+        
+        <!-- Card Gioco 1: Catch the Dot -->
+        <div onclick="AppManager.launchGame('catch-dot')" 
+             class="bg-slate-800 border border-slate-700 hover:border-indigo-500 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all shadow-lg">
+          <div class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl mb-2">
+            🎯
+          </div>
+          <h3 class="font-bold text-sm">Catch Dot</h3>
+          <span class="text-[10px] text-slate-400 mt-1">Reflessi & Speed</span>
+          <div class="mt-3 text-xs bg-slate-900 px-2.5 py-1 rounded-full text-indigo-300">
+            High: <span id="high-catch-dot">0</span>
+          </div>
+        </div>
+
+        <!-- Placeholder Gioco 2 (Esempio per il prompt LLM futuro) -->
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 flex flex-col items-center justify-center opacity-60">
+          <div class="w-12 h-12 rounded-full bg-slate-700 text-slate-500 flex items-center justify-center text-2xl mb-2">
+            🧩
+          </div>
+          <h3 class="font-bold text-sm text-slate-400">Prossimamente</h3>
+          <span class="text-[10px] text-slate-500 mt-1">In Sviluppo</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- View 2: Area Gioco (Canvas View) -->
+    <section id="view-game" class="hidden w-full h-full max-w-md mx-auto flex flex-col items-center justify-center relative">
+      
+      <!-- Top Scorebar Gioco -->
+      <div class="w-full bg-slate-800 border border-slate-700 rounded-t-xl px-4 py-2 flex justify-between items-center text-sm font-semibold">
+        <span class="text-indigo-400">Score: <span id="game-score">0</span></span>
+        <span class="text-amber-400">Best: <span id="game-highscore">0</span></span>
+      </div>
+
+      <!-- Canvas HTML5 flessibile e responsive -->
+      <canvas id="game-canvas" class="bg-slate-950 border-x border-b border-slate-700 rounded-b-xl w-full h-[60vh] touch-none"></canvas>
+      
+      <!-- Overlay Game Over -->
+      <div id="game-over-modal" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center p-6 text-center z-20">
+        <h3 class="text-2xl font-bold text-red-400 mb-2">Tempo Scaduto!</h3>
+        <p class="text-sm text-slate-300 mb-4">Punteggio Finale: <span id="final-score" class="font-bold text-white">0</span></p>
+        <button onclick="AppManager.restartCurrentGame()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 active:scale-95 rounded-xl font-bold shadow-lg transition">
+          Rigioca 🔄
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="h-10 bg-slate-800 border-t border-slate-700 flex items-center justify-center px-4 text-[11px] text-slate-400">
+    <span>Offline AI Portal • 100% Local</span>
+  </footer>
+
+  <!-- App Architecture & Game Engine JavaScript -->
+  <script>
+    /**
+     * AppManager: Gestisce le viste, il routing interno e la memoria salvata
+     */
+    const AppManager = {
+      activeGame: null,
+
+      init() {
+        this.updateScoresUI();
+        document.getElementById('btn-home').addEventListener('click', () => this.showDashboard());
+      },
+
+      showDashboard() {
+        if (this.activeGame && this.activeGame.stop) {
+          this.activeGame.stop();
+        }
+        document.getElementById('view-game').classList.add('hidden');
+        document.getElementById('game-over-modal').classList.add('hidden');
+        document.getElementById('view-dashboard').classList.remove('hidden');
+        document.getElementById('btn-home').classList.add('hidden');
+        this.updateScoresUI();
+      },
+
+      launchGame(gameId) {
+        document.getElementById('view-dashboard').classList.add('hidden');
+        document.getElementById('view-game').classList.remove('hidden');
+        document.getElementById('btn-home').classList.remove('hidden');
+
+        if (gameId === 'catch-dot') {
+          this.activeGame = CatchTheDotGame;
+          this.activeGame.start();
+        }
+      },
+
+      restartCurrentGame() {
+        document.getElementById('game-over-modal').classList.add('hidden');
+        if (this.activeGame) this.activeGame.start();
+      },
+
+      getScore(id) {
+        return parseInt(localStorage.getItem(`arcade_score_${id}`) || '0');
+      },
+
+      saveScore(id, score) {
+        const currentHigh = this.getScore(id);
+        if (score > currentHigh) {
+          localStorage.setItem(`arcade_score_${id}`, score);
+          return true;
+        }
+        return false;
+      },
+
+      updateScoresUI() {
+        document.getElementById('high-catch-dot').textContent = this.getScore('catch-dot');
+      }
+    };
+
+    /**
+     * Minigioco Dimostrativo: "Catch the Dot" (Canvas Touch-friendly)
+     */
+    const CatchTheDotGame = {
+      canvas: null,
+      ctx: null,
+      score: 0,
+      timer: 15,
+      target: { x: 0, y: 0, radius: 30 },
+      intervalId: null,
+      animId: null,
+
+      start() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        // Adatta la risoluzione interna del canvas alla dimensione visibile CSS
+        this.canvas.width = this.canvas.clientWidth;
+        this.canvas.height = this.canvas.clientHeight;
+
+        this.score = 0;
+        this.timer = 15;
+        this.updateUI();
+        this.spawnTarget();
+
+        // Rimozione ed aggiunta event listener per evitare duplicazioni
+        this.canvas.onclick = null;
+        this.canvas.ontouchstart = null;
+
+        const handleInput = (e) => {
+          e.preventDefault();
+          const rect = this.canvas.getBoundingClientRect();
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          
+          const clickX = clientX - rect.left;
+          const clickY = clientY - rect.top;
+
+          // Distanza Euclidea tra tocco e centro del cerchio
+          const dist = Math.hypot(clickX - this.target.x, clickY - this.target.y);
+          if (dist <= this.target.radius) {
+            this.score += 10;
+            this.updateUI();
+            this.spawnTarget();
+          }
+        };
+
+        this.canvas.addEventListener('mousedown', handleInput);
+        this.canvas.addEventListener('touchstart', handleInput, { passive: false });
+
+        clearInterval(this.intervalId);
+        this.intervalId = setInterval(() => {
+          this.timer--;
+          this.updateUI();
+          if (this.timer <= 0) this.gameOver();
+        }, 1000);
+
+        this.render();
+      },
+
+      spawnTarget() {
+        const margin = this.target.radius + 10;
+        this.target.x = margin + Math.random() * (this.canvas.width - margin * 2);
+        this.target.y = margin + Math.random() * (this.canvas.height - margin * 2);
+      },
+
+      updateUI() {
+        document.getElementById('game-score').textContent = this.score;
+        document.getElementById('game-highscore').textContent = Math.max(this.score, AppManager.getScore('catch-dot'));
+      },
+
+      render() {
+        if (this.timer <= 0) return;
+
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Disegna il target (pallino luminoso)
+        this.ctx.beginPath();
+        this.ctx.arc(this.target.x, this.target.y, this.target.radius, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#6366f1';
+        this.ctx.shadowColor = '#818cf8';
+        this.ctx.shadowBlur = 15;
+        this.ctx.fill();
+        this.ctx.closePath();
+
+        // Testo del timer al centro in trasparenza
+        this.ctx.shadowBlur = 0;
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        this.ctx.font = 'bold 80px sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(this.timer, this.canvas.width / 2, this.canvas.height / 2);
+
+        this.animId = requestAnimationFrame(() => this.render());
+      },
+
+      gameOver() {
+        clearInterval(this.intervalId);
+        cancelAnimationFrame(this.animId);
+        AppManager.saveScore('catch-dot', this.score);
+        document.getElementById('final-score').textContent = this.score;
+        document.getElementById('game-over-modal').classList.remove('hidden');
+      },
+
+      stop() {
+        clearInterval(this.intervalId);
+        cancelAnimationFrame(this.animId);
+      }
+    };
+
+    // Avvio dell'applicazione
+    document.addEventListener('DOMContentLoaded', () => AppManager.init());
+  </script>
+</body>
+</html>
