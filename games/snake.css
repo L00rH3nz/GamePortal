@@ -1,0 +1,63 @@
+/* Snake Rush — stili mobile-first */
+
+#snake-mount {
+  width: 100%;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.snake-board {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+#snake-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 1rem;
+  background: #020617;
+  border: 1px solid #1e293b;
+  touch-action: none;
+}
+
+.snake-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: rgba(2, 6, 23, 0.82);
+  backdrop-filter: blur(2px);
+  border-radius: 1rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.snake-btn {
+  min-height: 48px;
+  min-width: 48px;
+  touch-action: manipulation;
+}
+
+.snake-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.snake-dpad button {
+  border-radius: 0.9rem;
+  font-size: 1.4rem;
+  line-height: 1;
+}

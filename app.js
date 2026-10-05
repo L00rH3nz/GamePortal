@@ -10,6 +10,14 @@ const gameDetailEl = document.getElementById('game-detail');
 const backBtn = document.getElementById('back-btn');
 
 let games = [];
+let snakeCleanup = null;
+
+function disposeGame() {
+  if (typeof snakeCleanup === 'function') {
+    try { snakeCleanup(); } catch (e) { console.warn(e); }
+    snakeCleanup = null;
+  }
+}
 
 function badgeFor(stato) {
   const map = {
@@ -50,8 +58,21 @@ function renderList() {
 }
 
 function renderDetail(id) {
+  disposeGame();
   const game = games.find((g) => g.id === id);
   if (!game) return showView('404');
+
+  // Gioco reale: Snake Rush
+  if (id === 'snake-rush') {
+    gameDetailEl.innerHTML = `
+      <div class="w-full">
+        <div id="snake-mount" class="w-full"></div>
+      </div>`;
+    showView('game');
+    mountSnake();
+    return;
+  }
+
   gameDetailEl.innerHTML = `
     <article class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800">
       <img src="${game.anteprima}" alt="Anteprima ${game.titolo}"
@@ -66,7 +87,29 @@ function renderDetail(id) {
   showView('game');
 }
 
+function mountSnake() {
+  const mount = document.getElementById('snake-mount');
+  if (!mount) return;
+  if (typeof window.initSnakeRush === 'function') {
+    snakeCleanup = window.initSnakeRush(mount);
+    return;
+  }
+  // Carica il gioco on-demand se non è ancora stato incluso
+  const s = document.createElement('script');
+  s.src = 'games/snake.js';
+  s.onload = () => {
+    if (typeof window.initSnakeRush === 'function' && document.getElementById('snake-mount')) {
+      snakeCleanup = window.initSnakeRush(document.getElementById('snake-mount'));
+    }
+  };
+  s.onerror = () => {
+    mount.innerHTML = '<p class="text-red-400 text-sm p-4">Impossibile caricare Snake Rush.</p>';
+  };
+  document.body.appendChild(s);
+}
+
 function showView(name) {
+  if (name !== 'game') disposeGame();
   viewHome.classList.toggle('hidden', name !== 'home');
   viewGame.classList.toggle('hidden', name !== 'game');
   view404.classList.toggle('hidden', name !== '404');
