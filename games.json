@@ -1,0 +1,30 @@
+[
+  {
+    "id": "snake-rush",
+    "titolo": "Snake Rush",
+    "categoria": "Arcade",
+    "anteprima": "assets/snake-rush.png",
+    "stato": "disponibile"
+  },
+  {
+    "id": "memory-match",
+    "titolo": "Memory Match",
+    "categoria": "Puzzle",
+    "anteprima": "assets/memory-match.png",
+    "stato": "disponibile"
+  },
+  {
+    "id": "space-shooter",
+    "titolo": "Space Shooter",
+    "categoria": "Azione",
+    "anteprima": "assets/space-shooter.png",
+    "stato": "coming-soon"
+  },
+  {
+    "id": "quiz-flash",
+    "titolo": "Quiz Flash",
+    "categoria": "Trivia",
+    "anteprima": "assets/quiz-flash.png",
+    "stato": "beta"
+  }
+]

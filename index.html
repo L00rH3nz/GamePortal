@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>MiniGames Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-slate-950 text-white antialiased">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-slate-900/90 backdrop-blur border-b border-slate-800 safe-area-top">
+    <div class="w-full px-4 py-3 flex items-center justify-between">
+      <h1 class="text-lg font-bold tracking-tight">🎮 MiniGames Hub</h1>
+      <nav class="flex gap-2 text-sm">
+        <a href="#/" data-link class="px-3 py-1.5 rounded-lg bg-slate-800 active:bg-slate-700 touch-manipulation">Home</a>
+        <a href="#/games" data-link class="px-3 py-1.5 rounded-lg bg-slate-800 active:bg-slate-700 touch-manipulation">Giochi</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="pt-16 pb-8 min-h-screen">
+    <div id="view-home" class="w-full px-4">
+      <h2 class="text-xl font-semibold mt-4 mb-2">In evidenza</h2>
+      <p class="text-slate-400 text-sm mb-4">Tocca una card per giocare. Ottimizzato per mobile.</p>
+      <div id="games-list" class="flex flex-col gap-4 w-full">
+        <!-- Le card vengono iniettate da app.js -->
+      </div>
+    </div>
+
+    <div id="view-game" class="hidden w-full px-4">
+      <button id="back-btn" class="mt-4 mb-3 px-4 py-2 rounded-lg bg-slate-800 active:bg-slate-700 touch-manipulation">← Indietro</button>
+      <div id="game-detail" class="w-full"></div>
+    </div>
+
+    <div id="view-404" class="hidden w-full px-4 pt-10 text-center">
+      <p class="text-slate-400">Pagina non trovata.</p>
+      <a href="#/" data-link class="inline-block mt-4 px-4 py-2 rounded-lg bg-indigo-600">Torna alla Home</a>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
