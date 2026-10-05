@@ -1,0 +1,61 @@
+/* MiniGames Hub — stili personalizzati mobile-first */
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  touch-action: manipulation;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  overscroll-behavior-y: contain;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Layout mobile: contenitore a schermo intero */
+main {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Card a schermo intero: occupano tutta la larghezza con padding laterale */
+#games-list,
+#game-detail {
+  width: 100%;
+}
+
+.game-card {
+  width: 100%;
+  padding: 1rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.game-card img {
+  touch-action: manipulation;
+}
+
+/* Migliora l'area di tocco su mobile */
+a[data-link],
+button {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+@media (min-width: 640px) {
+  main {
+    max-width: 720px;
+  }
+}
